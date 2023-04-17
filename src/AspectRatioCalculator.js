@@ -292,7 +292,9 @@ const parseDimension = (value) => {
     <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
     </CanvasWrapper>
 
-    <SubTitle>Generate Test Pattern</SubTitle>
+    <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
+  <SubTitle>Generate Test Pattern</SubTitle>
+</a>
     <Button onClick={generateTestPattern}>Download Test Pattern</Button>
   </Container>
 );
