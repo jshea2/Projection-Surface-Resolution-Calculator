@@ -261,32 +261,35 @@ const parseDimension = (value) => {
     <SubTitle>Surface Resolution</SubTitle>
     <Label>
       Pixel Width:
-      <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
+        <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
+          <Input
+          type="checkbox"
+          checked={lockWidth}
+          onChange={(e) => setLockWidth(e.target.checked)}
+        
+        />
+        Lock
       </Label>
       <Label>
-  Lock Width:
-  <Input
-    type="checkbox"
-    checked={lockWidth}
-    onChange={(e) => setLockWidth(e.target.checked)}
-  />
+  
+
 </Label>
 <br />
     <br />
     <Label>
       Pixel Height:
-      <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
+        <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
+          <Input
+          type="checkbox"
+          checked={lockHeight}
+          onChange={(e) => setLockHeight(e.target.checked)}
+        />
+        Lock
       </Label>
       <Label>
-  Lock Height:
-  <Input
-    type="checkbox"
-    checked={lockHeight}
-    onChange={(e) => setLockHeight(e.target.checked)}
-  />
 </Label>
     <br />
-      <br />
+    <br />
     <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
     <CanvasWrapper>
     <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
