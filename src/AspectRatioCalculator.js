@@ -121,16 +121,38 @@ const handleRatioHeightChange = (e) => {
 
 
 
-  const parseDimension = (value) => {
-    const regex = /^(\d+)(?:'(\d{1,2})"|ft-?(\d{1,2})in)?$/;
-    const match = value.match(regex);
-    if (match) {
-      const feet = parseInt(match[1], 10);
-      const inches = match[2] ? parseInt(match[2], 10) : (match[3] ? parseInt(match[3], 10) : 0);
-      return feet * 12 + inches;
+const parseDimension = (value) => {
+  const regex = /^(\d+(?:\.\d+)?)(?:'(\d{1,2})"|ft-?(\d{1,2})in|ft|mm|"|in)?'?$/;
+  const match = value.match(regex);
+  if (match) {
+    const mainValue = parseFloat(match[1]);
+    const unit = match[2] ? "ftin" : (match[3] ? "ft-in" : (match[0].includes("mm") ? "mm" : (match[0].includes("in") || match[0].includes('"') ? "in" : "ft")));
+
+    let inches = 0;
+    if (unit === "ftin") {
+      inches = parseInt(match[2], 10);
+    } else if (unit === "ft-in") {
+      inches = parseInt(match[3], 10);
     }
-    return null;
-  };
+
+    switch (unit) {
+      case "ftin":
+      case "ft-in":
+        return mainValue * 12 + inches;
+      case "ft":
+        return mainValue * 12;
+      case "mm":
+        return mainValue * 0.0393701; // Convert millimeters to inches
+      case "in":
+        return mainValue;
+      default:
+        return null;
+    }
+  }
+  return null;
+};
+
+
 
   const displayRatio = () => {
     const width = parseDimension(ratioWidth);
