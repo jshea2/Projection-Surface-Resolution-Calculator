@@ -262,7 +262,8 @@ const parseDimension = (value) => {
     <Label>
       Pixel Width:
         <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
-          <Input
+        <br />  
+        <Input
           type="checkbox"
           checked={lockWidth}
           onChange={(e) => setLockWidth(e.target.checked)}
@@ -279,7 +280,8 @@ const parseDimension = (value) => {
     <Label>
       Pixel Height:
         <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
-          <Input
+        <br />  
+        <Input
           type="checkbox"
           checked={lockHeight}
           onChange={(e) => setLockHeight(e.target.checked)}
