@@ -293,12 +293,14 @@ const parseDimension = (value) => {
     <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
     <CanvasWrapper>
     <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
-    </CanvasWrapper>
+      </CanvasWrapper>
+      <Button onClick={generateTestPattern}>Download Test Pattern</Button>
+      <br />
+      <br />
 
     <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
   <SubTitle>Generate Test Pattern</SubTitle>
 </a>
-      <Button onClick={generateTestPattern}>Download Test Pattern</Button>
       <br />
       <br />
       <br />
