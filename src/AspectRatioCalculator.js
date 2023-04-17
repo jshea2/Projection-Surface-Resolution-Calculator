@@ -59,7 +59,7 @@ const AspectRatioCalculator = () => {
   const [pixelWidth, setPixelWidth] = useState(1920);
   const [pixelHeight, setPixelHeight] = useState(1080);
   const [lockWidth, setLockWidth] = useState(false);
-  const [lockHeight, setLockHeight] = useState(false);
+  const [lockHeight, setLockHeight] = useState(true);
 
 
   const gcd = (a, b) => {
