@@ -295,8 +295,12 @@ const parseDimension = (value) => {
     <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
   <SubTitle>Generate Test Pattern</SubTitle>
 </a>
-    <Button onClick={generateTestPattern}>Download Test Pattern</Button>
-  </Container>
+      <Button onClick={generateTestPattern}>Download Test Pattern</Button>
+      <br />
+      <br />
+      <br />
+      <small>Made by ChatGPT & Joe Shea</small>
+    </Container>
 );
 };
 
