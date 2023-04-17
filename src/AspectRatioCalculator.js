@@ -58,47 +58,68 @@ const AspectRatioCalculator = () => {
   const [ratioHeight, setRatioHeight] = useState("9'0\"");
   const [pixelWidth, setPixelWidth] = useState(1920);
   const [pixelHeight, setPixelHeight] = useState(1080);
+  const [lockWidth, setLockWidth] = useState(false);
+  const [lockHeight, setLockHeight] = useState(false);
+
 
   const gcd = (a, b) => {
     if (b === 0) return a;
     return gcd(b, a % b);
   };
 
-  const handleRatioWidthChange = (e) => {
-    setRatioWidth(e.target.value);
-    const width = parseDimension(e.target.value);
-    const height = parseDimension(ratioHeight);
-    if (width && height) {
-      setPixelHeight(Math.round((pixelWidth * height) / width));
-    }
-  };
-
-  const handleRatioHeightChange = (e) => {
-    setRatioHeight(e.target.value);
-    const width = parseDimension(ratioWidth);
-    const height = parseDimension(e.target.value);
-    if (width && height) {
-      setPixelHeight(Math.round((pixelWidth * height) / width));
-    }
-  };
-
-  const handlePixelWidthChange = (e) => {
+// Update handlePixelWidthChange and handlePixelHeightChange functions
+const handlePixelWidthChange = (e) => {
+  if (!lockWidth) {
     setPixelWidth(e.target.value);
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
       setPixelHeight(Math.round((e.target.value * height) / width));
     }
-  };
+  }
+};
 
-  const handlePixelHeightChange = (e) => {
+const handlePixelHeightChange = (e) => {
+  if (!lockHeight) {
     setPixelHeight(e.target.value);
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
       setPixelWidth(Math.round((e.target.value * width) / height));
     }
-  };
+  }
+};
+
+// Update handleRatioWidthChange and handleRatioHeightChange functions
+const handleRatioWidthChange = (e) => {
+  setRatioWidth(e.target.value);
+  const width = parseDimension(e.target.value);
+  const height = parseDimension(ratioHeight);
+  if (width && height) {
+    if (!lockWidth) {
+      setPixelWidth(Math.round((pixelHeight * width) / height));
+    }
+    if (!lockHeight) {
+      setPixelHeight(Math.round((pixelWidth * height) / width));
+    }
+  }
+};
+
+const handleRatioHeightChange = (e) => {
+  setRatioHeight(e.target.value);
+  const width = parseDimension(ratioWidth);
+  const height = parseDimension(e.target.value);
+  if (width && height) {
+    if (!lockWidth) {
+      setPixelWidth(Math.round((pixelHeight * width) / height));
+    }
+    if (!lockHeight) {
+      setPixelHeight(Math.round((pixelWidth * height) / width));
+    }
+  }
+};
+
+
 
   const parseDimension = (value) => {
     const regex = /^(\d+)(?:'(\d{1,2})"|ft-?(\d{1,2})in)?$/;
@@ -219,12 +240,29 @@ const AspectRatioCalculator = () => {
     <Label>
       Pixel Width:
       <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
-    </Label>
+      </Label>
+      <Label>
+  Lock Width:
+  <Input
+    type="checkbox"
+    checked={lockWidth}
+    onChange={(e) => setLockWidth(e.target.checked)}
+  />
+</Label>
+<br />
     <br />
     <Label>
       Pixel Height:
       <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
-    </Label>
+      </Label>
+      <Label>
+  Lock Height:
+  <Input
+    type="checkbox"
+    checked={lockHeight}
+    onChange={(e) => setLockHeight(e.target.checked)}
+  />
+</Label>
     <br />
     <br />
     <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
