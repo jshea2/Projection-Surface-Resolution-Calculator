@@ -287,10 +287,10 @@ const parseDimension = (value) => {
 </Label>
     <br />
       <br />
+    <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
     <CanvasWrapper>
     <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
     </CanvasWrapper>
-    <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
 
     <SubTitle>Generate Test Pattern</SubTitle>
     <Button onClick={generateTestPattern}>Download Test Pattern</Button>
