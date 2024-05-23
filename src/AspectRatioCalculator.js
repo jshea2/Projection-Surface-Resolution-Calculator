@@ -266,15 +266,17 @@ const AspectRatioCalculator = () => {
    // Convert surface dimension width to feet
 const screenWidthFeet = parseDimensionInFeet(ratioWidth);
 
-// Draw the screen
+    // Draw the screen
+    const distance = parseFloat(throwDistance) * 10; // Adjust the scaling factor if needed
 const screenHeight = 50; // fixed height for visualization
 const screenWidth = screenWidthFeet * 10; // scale the width appropriately
 const screenY = canvas.height / 1.2 + screenHeight; // Adjust the screen position
 ctx.fillStyle = 'blue';
-ctx.fillRect((canvas.width - screenWidth) / 2, screenY, screenWidth, 3);
+    ctx.fillRect((canvas.width - screenWidth) / 2, screenY, screenWidth, 3);
+    ctx.fillRect((canvas.width / 2) -10, (screenY - distance)-30, 20, 30);
 
 // Draw the throw distance line
-const distance = parseFloat(throwDistance) * 10; // Adjust the scaling factor if needed
+
 ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 3]);
@@ -300,13 +302,13 @@ ctx.stroke();
 
 
     // Draw the throw ratio label
-    drawText(ctx, `Throw Ratio: ${throwRatio}`, canvas.width / 2, canvas.height / 2 + screenHeight / 2 + 0);
+    drawText(ctx, `Throw Ratio: ${throwRatio}`, canvas.width / 2, (screenY - distance) +20);
 
     // Draw the throw distance label
-    drawText(ctx, `Throw Distance: ${throwDistance} ft`, canvas.width / 2, canvas.height / 2 + screenHeight / 2 + 100);
+    drawText(ctx, `Throw Distance: ${throwDistance} ft`, canvas.width / 2, (screenY - (distance / 2))+40);
 
     // Draw the screen width label
-    drawText(ctx, `Surface Width: ${ratioWidth}`, canvas.width / 2, canvas.height / 2 + screenHeight / 2 + 200);
+    drawText(ctx, `Surface Width: ${ratioWidth}`, canvas.width / 2, screenY + 20);
   };
 
   const generateTestPattern = () => {
