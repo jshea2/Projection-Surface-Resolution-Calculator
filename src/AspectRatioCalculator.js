@@ -366,7 +366,7 @@ ctx.stroke();
         Height:
         <Input type="text" value={ratioHeight} onChange={handleRatioHeightChange} />
       </Label>
-      <SubTitle>Surface Resolution</SubTitle>
+      <SubTitle>Projector/Surface Resolution</SubTitle>
       <Label>
         Pixel Width:
         <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
