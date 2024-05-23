@@ -404,7 +404,7 @@ ctx.stroke();
       <br />
       <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
       <SubTitle>Pixel Pitch: {calculatePixelPitch()} mm</SubTitle>
-      <SmallText>Minimum Viewing Distance: {calculateViewingDistance()} ft</SmallText>
+      <SmallText>Closest Opimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
       <CanvasWrapper>
         <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
       </CanvasWrapper>
