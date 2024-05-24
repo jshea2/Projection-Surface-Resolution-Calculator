@@ -30,8 +30,8 @@ const Label = styled.label`
 
 const Input = styled.input`
   font-size: 1rem;
-  padding: 0.2rem;
-  margin-bottom: 0.5rem;
+  padding: 0.4rem;
+  margin-bottom: 0.1rem;
 `;
 
 const Button = styled.button`
@@ -40,7 +40,7 @@ const Button = styled.button`
   background-color: #0077cc;
   color: white;
   border: none;
-  border-radius: 3px;
+  border-radius: 0.2px;
   cursor: pointer;
   transition: all 0.3s;
 
@@ -71,7 +71,7 @@ const Section = styled.div`
 const FootLambertsDisplay = styled.div`
   font-size: 1.5rem;
   color: ${({ value }) => {
-    if (value <= 15.99) return 'red';
+    if (value < 15) return 'red';
     if (value >= 16 && value <= 50) return 'green';
     if (value >= 51 && value <= 1000) return 'yellow';
     return 'black';
@@ -89,6 +89,7 @@ const AspectRatioCalculator = () => {
   const [footLamberts, setFootLamberts] = useState(0);
   const [lockWidth, setLockWidth] = useState(false);
   const [lockHeight, setLockHeight] = useState(true);
+  const [testPatternName, setTestPatternName] = useState('Test Pattern Name');
 
   const gcd = (a, b) => {
     return b === 0 ? a : gcd(b, a % b);
@@ -178,42 +179,16 @@ const AspectRatioCalculator = () => {
     }
   };
 
-  const setLumensForFootLamberts = () => {
+  const setLumensForFootLamberts = (desiredFL) => {
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
       const widthInFeet = width / 12;
       const heightInFeet = height / 12;
       const surfaceArea = widthInFeet * heightInFeet;
-      const lumensFor16fL = (16 * surfaceArea).toFixed(2);
-      setLumens(lumensFor16fL);
-      updateFootLamberts(lumensFor16fL, width, height);
-    }
-  };
-
-    const setLumensForFootLamberts32 = () => {
-    const width = parseDimension(ratioWidth);
-    const height = parseDimension(ratioHeight);
-    if (width && height) {
-      const widthInFeet = width / 12;
-      const heightInFeet = height / 12;
-      const surfaceArea = widthInFeet * heightInFeet;
-      const lumensFor16fL = (32 * surfaceArea).toFixed(2);
-      setLumens(lumensFor16fL);
-      updateFootLamberts(lumensFor16fL, width, height);
-    }
-    };
-  
-    const setLumensForFootLamberts48 = () => {
-    const width = parseDimension(ratioWidth);
-    const height = parseDimension(ratioHeight);
-    if (width && height) {
-      const widthInFeet = width / 12;
-      const heightInFeet = height / 12;
-      const surfaceArea = widthInFeet * heightInFeet;
-      const lumensFor16fL = (48 * surfaceArea).toFixed(2);
-      setLumens(lumensFor16fL);
-      updateFootLamberts(lumensFor16fL, width, height);
+      const lumensForFL = (desiredFL * surfaceArea).toFixed(2);
+      setLumens(lumensForFL);
+      updateFootLamberts(lumensForFL, width, height);
     }
   };
 
@@ -269,15 +244,24 @@ const AspectRatioCalculator = () => {
     return inches / 12; // Convert inches to feet
   };
 
-  const displayRatio = () => {
+const displayRatio = () => {
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
-      const divisor = gcd(width, height);
-      return `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+        const divisor = gcd(width, height);
+        const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+        const decimalRatio = (width / height).toFixed(2);
+        
+        // Handle special case for 16:10 aspect ratio
+        if (wholeNumberRatio === "8:5") {
+            return "16:10 (1.60:1)";
+        }
+
+        return `${wholeNumberRatio} (${decimalRatio}:1)`;
     }
     return 'Invalid dimensions';
-  };
+};
+
 
   const calculatePixelPitch = () => {
     const width = parseDimension(ratioWidth) / 0.0393701; // Convert inches to mm
@@ -290,26 +274,28 @@ const AspectRatioCalculator = () => {
     return (pixelPitchMeters * 3.28084).toFixed(2); // Convert meters to feet
   };
 
-  const calculateHeightForAspectRatio = () => {
+  const calculateHeightForAspectRatio = (aspectRatio) => {
     const width = parseDimension(ratioWidth);
     if (width) {
-      const height = (width * 9) / 16;
+      const [w, h] = aspectRatio.split(':').map(Number);
+      const height = (width * h) / w;
       const heightInFeet = `${(height / 12).toFixed(2)}ft`;
       setRatioHeight(heightInFeet);
       setPixelWidth(1920);
-      setPixelHeight(1080);
+      setPixelHeight(Math.round((1920 * h) / w));
       updateFootLamberts(lumens, width, height);
     }
   };
 
-  const calculateWidthForAspectRatio = () => {
+  const calculateWidthForAspectRatio = (aspectRatio) => {
     const height = parseDimension(ratioHeight);
     if (height) {
-      const width = (height * 16) / 9;
+      const [w, h] = aspectRatio.split(':').map(Number);
+      const width = (height * w) / h;
       const widthInFeet = `${(width / 12).toFixed(2)}ft`;
       setRatioWidth(widthInFeet);
       setPixelHeight(1080);
-      setPixelWidth(1920);
+      setPixelWidth(Math.round((1080 * w) / h));
       updateFootLamberts(lumens, width, height);
     }
   };
@@ -368,10 +354,18 @@ const AspectRatioCalculator = () => {
     // Convert surface dimension width to feet
     const screenWidthFeet = parseDimensionInFeet(ratioWidth);
 
+    // Determine the scale factor
+    const maxDistance = parseFloat(throwDistance);
+    const maxWidth = screenWidthFeet;
+    const scaleFactor = Math.min(
+      (visualizationSize * 0.8) / maxDistance,
+      (visualizationSize * 0.8) / maxWidth
+    );
+
     // Draw the screen
-    const distance = parseFloat(throwDistance) * 10; // Adjust the scaling factor if needed
+    const distance = maxDistance * scaleFactor; // Adjust the scaling factor
     const screenHeight = 50; // fixed height for visualization
-    const screenWidth = screenWidthFeet * 10; // scale the width appropriately
+    const screenWidth = screenWidthFeet * scaleFactor; // scale the width appropriately
     const screenY = canvas.height / 1.2 + screenHeight; // Adjust the screen position
     ctx.fillStyle = 'blue';
     ctx.fillRect((canvas.width - screenWidth) / 2, screenY, screenWidth, 3);
@@ -408,46 +402,107 @@ const AspectRatioCalculator = () => {
     drawText(ctx, `Surface Width: ${ratioWidth}`, canvas.width / 2, screenY + 20);
   };
 
-  const generateTestPattern = () => {
+const generateTestPattern = () => {
     const canvas = document.createElement('canvas');
     canvas.width = pixelWidth;
     canvas.height = pixelHeight;
     const ctx = canvas.getContext('2d');
 
+    const drawText = (ctx, text, x, y, fontSize = '16px', color = 'black') => {
+        ctx.fillStyle = color;
+        ctx.font = `${fontSize} Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+    };
+
     // Draw the test pattern (grid)
-    const gridSize = 20;
+    const gridSize = pixelHeight / 4;
     const gridRows = Math.ceil(pixelHeight / gridSize);
     const gridCols = Math.ceil(pixelWidth / gridSize);
 
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, pixelWidth, pixelHeight);
 
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+
+    // Draw vertical grid lines
+    for (let col = 0; col <= gridCols; col++) {
+        const x = col * gridSize;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, pixelHeight);
+        ctx.stroke();
+    }
+
+    // Draw horizontal grid lines
+    for (let row = 0; row <= gridRows; row++) {
+        const y = row * gridSize;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(pixelWidth, y);
+        ctx.stroke();
+    }
+
+    // Draw the red circle in the center spanning the height
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(pixelWidth / 2, pixelHeight / 2, pixelHeight / 2, 0, 2 * Math.PI);
+    ctx.stroke();
 
-    for (let row = 1; row < gridRows; row++) {
-      ctx.beginPath();
-      ctx.moveTo(0, row * gridSize);
-      ctx.lineTo(pixelWidth, row * gridSize);
-      ctx.stroke();
-    }
+    // Draw the red border around all edges
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 10;
+    ctx.strokeRect(0, 0, pixelWidth, pixelHeight);
 
-    for (let col = 1; col < gridCols; col++) {
-      ctx.beginPath();
-      ctx.moveTo(col * gridSize, 0);
-      ctx.lineTo(col * gridSize, pixelHeight);
-      ctx.stroke();
-    }
+    // Draw thick vertical and horizontal center lines
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(pixelWidth / 2, 0);
+    ctx.lineTo(pixelWidth / 2, pixelHeight);
+    ctx.stroke();
 
-    // Display the resolution
-    drawText(ctx, `${pixelWidth}x${pixelHeight}`, pixelWidth / 2, pixelHeight / 2);
+    ctx.beginPath();
+    ctx.moveTo(0, pixelHeight / 2);
+    ctx.lineTo(pixelWidth, pixelHeight / 2);
+    ctx.stroke();
+
+    // Draw color bars centered, square, and aligned to the bottom half
+    const colors = ['white', 'yellow', 'cyan', 'green', 'magenta', 'red', 'blue', 'black'];
+    const numColors = colors.length;
+    const barSize = pixelHeight / 10; // Square size for each color bar
+    const totalBarWidth = barSize * numColors;
+    const barY = (pixelHeight / 2) + (pixelHeight / 6); // Align with the bottom half
+    const barStartX = (pixelWidth - totalBarWidth) / 2; // Calculate the starting X position
+
+    // Draw each color bar with a grey border
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'grey';
+    colors.forEach((color, index) => {
+        ctx.fillStyle = color;
+        const x = barStartX + index * barSize;
+        ctx.fillRect(x, barY, barSize, barSize);
+        ctx.strokeRect(x, barY, barSize, barSize);
+    });
+
+    // Display the resolution, aspect ratio, and pixel pitch
+    const fontSize = pixelHeight / 16; // 1/16 of the size of the image height
+    drawText(ctx, testPatternName, pixelWidth / 2, pixelHeight / 3, `${fontSize}px`);
+    drawText(ctx, `${pixelWidth}px x ${pixelHeight}px`, pixelWidth / 2, pixelHeight / 2.3, `${fontSize}px`);
+    const aspectRatioText = `${Math.round(pixelWidth / gcd(pixelWidth, pixelHeight))}:${Math.round(pixelHeight / gcd(pixelWidth, pixelHeight))} (${(pixelWidth / pixelHeight).toFixed(2)}:1)`;
+    drawText(ctx, `Aspect Ratio: ${aspectRatioText}`, pixelWidth / 2, pixelHeight / 2 + fontSize, `${fontSize / 2}px`);
+    const pixelPitch = (parseDimension(ratioWidth) / 0.0393701 / pixelWidth).toFixed(2);
+    drawText(ctx, `Pixel Pitch: ${pixelPitch} mm`, pixelWidth / 2, pixelHeight / 2 + 1.5 * fontSize, `${fontSize / 2}px`);
+    drawText(ctx, `Surface Dimension: ${ratioWidth} x ${ratioHeight}`, pixelWidth / 2, pixelHeight / 2 + 2 * fontSize, `${fontSize / 2}px`);
 
     // Download the test pattern as an image
     const link = document.createElement('a');
-    link.download = `test_pattern_${pixelWidth}x${pixelHeight}.png`;
+    link.download = `${testPatternName.replace(/ /g, '_')}_${pixelWidth}x${pixelHeight}.png`;
     link.href = canvas.toDataURL();
     link.click();
-  };
+};
 
   return (
     <Container>
@@ -459,12 +514,20 @@ const AspectRatioCalculator = () => {
         <InputGroup>
           <Label>Width:</Label>
           <Input type="text" value={ratioWidth} onChange={handleRatioWidthChange} />
-          <Button onClick={calculateHeightForAspectRatio}>16:9</Button>
+          <Button onClick={() => calculateHeightForAspectRatio("16:9")}>16:9</Button>
+          <Button onClick={() => calculateHeightForAspectRatio("16:10")}>16:10</Button>
+          <Button onClick={() => calculateHeightForAspectRatio("4:3")}>4:3</Button>
+          <Button onClick={() => calculateHeightForAspectRatio("2:1")}>2:1</Button>
+          <Button onClick={() => calculateHeightForAspectRatio("1:1")}>1:1</Button>
         </InputGroup>
         <InputGroup>
           <Label>Height:</Label>
           <Input type="text" value={ratioHeight} onChange={handleRatioHeightChange} />
-          <Button onClick={calculateWidthForAspectRatio}>16:9</Button>
+          <Button onClick={() => calculateWidthForAspectRatio("16:9")}>16:9</Button>
+          <Button onClick={() => calculateWidthForAspectRatio("16:10")}>16:10</Button>
+          <Button onClick={() => calculateWidthForAspectRatio("4:3")}>4:3</Button>
+          <Button onClick={() => calculateWidthForAspectRatio("2:1")}>2:1</Button>
+          <Button onClick={() => calculateWidthForAspectRatio("1:1")}>1:1</Button>
         </InputGroup>
       </Section>
       
@@ -488,7 +551,10 @@ const AspectRatioCalculator = () => {
         <CanvasWrapper>
           <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
         </CanvasWrapper>
-        <Button onClick={generateTestPattern}>Download Test Pattern</Button>
+        <InputGroup>
+          <Input type="text" value={testPatternName} onChange={(e) => setTestPatternName(e.target.value)} placeholder="Test Pattern Name" />
+          <Button onClick={generateTestPattern}>Download</Button>
+        </InputGroup>
         <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
           <SubTitle>Generate Test Pattern</SubTitle>
         </a>
@@ -507,9 +573,9 @@ const AspectRatioCalculator = () => {
         <InputGroup>
           <Label>Lumens:</Label>
           <Input type="number" value={lumens} onChange={handleLumensChange} step="1" />
-          <Button onClick={setLumensForFootLamberts}>16fL</Button>
-          <Button onClick={setLumensForFootLamberts32}>32fL</Button>
-          <Button onClick={setLumensForFootLamberts48}>48fL</Button>
+          <Button onClick={() => setLumensForFootLamberts(16)}>16fL</Button>
+          <Button onClick={() => setLumensForFootLamberts(32)}>32fL</Button>
+          <Button onClick={() => setLumensForFootLamberts(48)}>48fL</Button>
         </InputGroup>
         <SubTitle>
           Foot Lamberts: <FootLambertsDisplay value={footLamberts}>{footLamberts} fL</FootLambertsDisplay>
