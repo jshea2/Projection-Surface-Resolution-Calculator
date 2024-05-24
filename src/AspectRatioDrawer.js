@@ -222,7 +222,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
       <div>
         <Input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
-      <small>2Upload file, click and drag box over image</small>
+      <small>Upload file, click and drag box over image</small>
       <div>
         <Canvas
           ref={canvasRef}

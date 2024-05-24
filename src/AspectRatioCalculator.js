@@ -564,9 +564,6 @@ const generateTestPattern = () => {
           <Input type="text" value={testPatternName} onChange={(e) => setTestPatternName(e.target.value)} placeholder="Test Pattern Name" />
           <Button onClick={generateTestPattern}>Download</Button>
         </InputGroup>
-        <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
-          <SubTitle>Generate Test Pattern</SubTitle>
-        </a>
       </Section>
 
             <Section>
