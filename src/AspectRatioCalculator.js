@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import AspectRatioDrawer from './AspectRatioDrawer';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -244,34 +245,32 @@ const AspectRatioCalculator = () => {
     return inches / 12; // Convert inches to feet
   };
 
-const displayRatio = () => {
+  const displayRatio = () => {
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
-        // Check for standard aspect ratios
-        const standardRatios = {
-            '16:9': 16 / 9,
-            '16:10': 16 / 10,
-            '4:3': 4 / 3,
-            '2:1': 2 / 1,
-            '1:1': 1 / 1
-        };
-        const decimalRatio = (width / height).toFixed(2);
-        for (const [key, value] of Object.entries(standardRatios)) {
-            if (Math.abs(value - width / height) < 0.01) {
-                return `${key} (${decimalRatio}:1)`;
-            }
+      // Check for standard aspect ratios
+      const standardRatios = {
+        '16:9': 16 / 9,
+        '16:10': 16 / 10,
+        '4:3': 4 / 3,
+        '2:1': 2 / 1,
+        '1:1': 1 / 1
+      };
+      const decimalRatio = (width / height).toFixed(2);
+      for (const [key, value] of Object.entries(standardRatios)) {
+        if (Math.abs(value - width / height) < 0.01) {
+          return `${key} (${decimalRatio}:1)`;
         }
+      }
 
-        // If it's not a standard ratio, use gcd to calculate the ratio
-        const divisor = gcd(width, height);
-        const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
-        return `${wholeNumberRatio} (${decimalRatio}:1)`;
+      // If it's not a standard ratio, use gcd to calculate the ratio
+      const divisor = gcd(width, height);
+      const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+      return `${wholeNumberRatio} (${decimalRatio}:1)`;
     }
     return 'Invalid dimensions';
-};
-
-
+  };
 
   const calculatePixelPitch = () => {
     const width = parseDimension(ratioWidth) / 0.0393701; // Convert inches to mm
@@ -570,6 +569,20 @@ const generateTestPattern = () => {
         </a>
       </Section>
 
+            <Section>
+        <AspectRatioDrawer 
+          ratioWidth={ratioWidth} 
+          ratioHeight={ratioHeight} 
+          setRatioWidth={setRatioWidth} 
+          setRatioHeight={setRatioHeight}
+          pixelWidth={pixelWidth}
+        pixelHeight={pixelHeight}
+        setPixelWidth={setPixelWidth}
+        setPixelHeight={setPixelHeight}
+
+        />
+      </Section>
+
       <Section>
         <SubTitle>Throw Ratio and Distance</SubTitle>
         <InputGroup>
@@ -595,7 +608,9 @@ const generateTestPattern = () => {
       <CanvasWrapper>
         <canvas ref={visualizationCanvasRef} width={visualizationSize} height={visualizationSize}></canvas>
       </CanvasWrapper>
-      
+
+
+
       <small>Made by Joe Shea & ChatGPT</small>
     </Container>
   );
