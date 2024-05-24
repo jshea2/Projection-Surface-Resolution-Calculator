@@ -30,8 +30,8 @@ const Label = styled.label`
 
 const Input = styled.input`
   font-size: 1rem;
-  padding: 0.25rem;
-  margin-bottom: 1rem;
+  padding: 0.2rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Button = styled.button`
@@ -58,6 +58,26 @@ const SmallText = styled.p`
   color: #666;
 `;
 
+const InputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const Section = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const FootLambertsDisplay = styled.div`
+  font-size: 1.5rem;
+  color: ${({ value }) => {
+    if (value <= 15.99) return 'red';
+    if (value >= 16 && value <= 50) return 'green';
+    if (value >= 51 && value <= 1000) return 'yellow';
+    return 'black';
+  }};
+`;
+
 const AspectRatioCalculator = () => {
   const [ratioWidth, setRatioWidth] = useState("16ft");
   const [ratioHeight, setRatioHeight] = useState("9ft");
@@ -65,6 +85,8 @@ const AspectRatioCalculator = () => {
   const [pixelHeight, setPixelHeight] = useState(1080);
   const [throwRatio, setThrowRatio] = useState(1.5);
   const [throwDistance, setThrowDistance] = useState(24); // Example initial value
+  const [lumens, setLumens] = useState(0);
+  const [footLamberts, setFootLamberts] = useState(0);
   const [lockWidth, setLockWidth] = useState(false);
   const [lockHeight, setLockHeight] = useState(true);
 
@@ -106,6 +128,7 @@ const AspectRatioCalculator = () => {
         setPixelHeight(Math.round((pixelWidth * height) / width));
       }
       updateThrowDistance(width);
+      updateFootLamberts(lumens, width, height);
     }
   };
 
@@ -121,6 +144,7 @@ const AspectRatioCalculator = () => {
         setPixelHeight(Math.round((pixelWidth * height) / width));
       }
       updateThrowDistance(width);
+      updateFootLamberts(lumens, width, height);
     }
   };
 
@@ -130,7 +154,6 @@ const AspectRatioCalculator = () => {
     const width = parseDimensionInFeet(ratioWidth);
     if (width) {
       const newThrowDistance = (width * newThrowRatio).toFixed(2);
-      console.log(`Updating throw distance: ${newThrowDistance}`);
       setThrowDistance(newThrowDistance);
     }
   };
@@ -141,8 +164,56 @@ const AspectRatioCalculator = () => {
     const width = parseDimensionInFeet(ratioWidth);
     if (width) {
       const newThrowRatio = (newThrowDistance / width).toFixed(2);
-      console.log(`Updating throw ratio: ${newThrowRatio}`);
       setThrowRatio(newThrowRatio);
+    }
+  };
+
+  const handleLumensChange = (e) => {
+    const newLumens = e.target.value;
+    setLumens(newLumens);
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      updateFootLamberts(newLumens, width, height);
+    }
+  };
+
+  const setLumensForFootLamberts = () => {
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      const widthInFeet = width / 12;
+      const heightInFeet = height / 12;
+      const surfaceArea = widthInFeet * heightInFeet;
+      const lumensFor16fL = (16 * surfaceArea).toFixed(2);
+      setLumens(lumensFor16fL);
+      updateFootLamberts(lumensFor16fL, width, height);
+    }
+  };
+
+    const setLumensForFootLamberts32 = () => {
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      const widthInFeet = width / 12;
+      const heightInFeet = height / 12;
+      const surfaceArea = widthInFeet * heightInFeet;
+      const lumensFor16fL = (32 * surfaceArea).toFixed(2);
+      setLumens(lumensFor16fL);
+      updateFootLamberts(lumensFor16fL, width, height);
+    }
+    };
+  
+    const setLumensForFootLamberts48 = () => {
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      const widthInFeet = width / 12;
+      const heightInFeet = height / 12;
+      const surfaceArea = widthInFeet * heightInFeet;
+      const lumensFor16fL = (48 * surfaceArea).toFixed(2);
+      setLumens(lumensFor16fL);
+      updateFootLamberts(lumensFor16fL, width, height);
     }
   };
 
@@ -150,9 +221,16 @@ const AspectRatioCalculator = () => {
     if (width) {
       const widthInFeet = width / 12;
       const newThrowDistance = (widthInFeet * throwRatio).toFixed(2);
-      console.log(`Updating throw distance in updateThrowDistance: ${newThrowDistance}`);
       setThrowDistance(newThrowDistance);
     }
+  };
+
+  const updateFootLamberts = (lumens, width, height) => {
+    const widthInFeet = width / 12;
+    const heightInFeet = height / 12;
+    const surfaceArea = widthInFeet * heightInFeet;
+    const newFootLamberts = (lumens / surfaceArea).toFixed(2);
+    setFootLamberts(newFootLamberts);
   };
 
   const parseDimension = (value) => {
@@ -196,9 +274,6 @@ const AspectRatioCalculator = () => {
     const height = parseDimension(ratioHeight);
     if (width && height) {
       const divisor = gcd(width, height);
-      console.log(divisor)
-      console.log(width)
-      console.log(height)
       return `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
     }
     return 'Invalid dimensions';
@@ -221,19 +296,21 @@ const AspectRatioCalculator = () => {
       const height = (width * 9) / 16;
       const heightInFeet = `${(height / 12).toFixed(2)}ft`;
       setRatioHeight(heightInFeet);
-      setPixelWidth(1920)
-      setPixelHeight(1080)
+      setPixelWidth(1920);
+      setPixelHeight(1080);
+      updateFootLamberts(lumens, width, height);
     }
   };
 
-    const calculateWidthForAspectRatio = () => {
+  const calculateWidthForAspectRatio = () => {
     const height = parseDimension(ratioHeight);
     if (height) {
       const width = (height * 16) / 9;
       const widthInFeet = `${(width / 12).toFixed(2)}ft`;
       setRatioWidth(widthInFeet);
-      setPixelHeight(1080)
-      setPixelWidth(1920)
+      setPixelHeight(1080);
+      setPixelWidth(1920);
+      updateFootLamberts(lumens, width, height);
     }
   };
 
@@ -243,7 +320,7 @@ const AspectRatioCalculator = () => {
   useEffect(() => {
     drawPreview();
     drawVisualization();
-  }, [pixelWidth, pixelHeight, throwRatio, throwDistance, ratioWidth, ratioHeight]);
+  }, [pixelWidth, pixelHeight, throwRatio, throwDistance, ratioWidth, ratioHeight, lumens]);
 
   const drawText = (ctx, text, x, y) => {
     ctx.fillStyle = 'black';
@@ -375,73 +452,74 @@ const AspectRatioCalculator = () => {
   return (
     <Container>
       <Title>Projection Surface Resolution Calculator</Title>
-      <SubTitle>Surface Dimension</SubTitle>
-      <SmallText>Units: ft, in, mm</SmallText>
-      <Label>
-        Width:
-        <Input type="text" value={ratioWidth} onChange={handleRatioWidthChange} />
-        <Button onClick={calculateHeightForAspectRatio}>16:9</Button>
-      </Label>
-      <br />
-      <Label>
-        Height:
-        <Input type="text" value={ratioHeight} onChange={handleRatioHeightChange} />
-        <Button onClick={calculateWidthForAspectRatio}>16:9</Button>
-      </Label>
-      <SubTitle>Projector/Surface Resolution</SubTitle>
-      <Label>
-        Pixel Width:
-        <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
-        <br />
-        <Input
-          type="checkbox"
-          checked={lockWidth}
-          onChange={(e) => setLockWidth(e.target.checked)}
-        />
-        Lock
-      </Label>
-      <br />
-      <Label>
-        Pixel Height:
-        <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
-        <br />
-        <Input
-          type="checkbox"
-          checked={lockHeight}
-          onChange={(e) => setLockHeight(e.target.checked)}
-        />
-        Lock
-      </Label>
-      <br />
-      <SubTitle>Throw Ratio and Distance</SubTitle>
-      <Label>
-        Throw Ratio:
-        <Input type="number" value={throwRatio} onChange={handleThrowRatioChange} step="0.01"/>
-      </Label>
-      <br />
-      <Label>
-        Throw Distance (ft):
-        <Input type="number" value={throwDistance} onChange={handleThrowDistanceChange} step="0.01"/>
-      </Label>
-      <br />
-      <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
-      <SubTitle>Pixel Pitch: {calculatePixelPitch()} mm</SubTitle>
-      <SmallText>Closest Opimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
-      <CanvasWrapper>
-        <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
-      </CanvasWrapper>
-      <Button onClick={generateTestPattern}>Download Test Pattern</Button>
-      <br />
-      <br />
-      <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
-        <SubTitle>Generate Test Pattern</SubTitle>
-      </a>
+      
+      <Section>
+        <SubTitle>Surface Dimension</SubTitle>
+        <SmallText>Units: ft, in, mm</SmallText>
+        <InputGroup>
+          <Label>Width:</Label>
+          <Input type="text" value={ratioWidth} onChange={handleRatioWidthChange} />
+          <Button onClick={calculateHeightForAspectRatio}>16:9</Button>
+        </InputGroup>
+        <InputGroup>
+          <Label>Height:</Label>
+          <Input type="text" value={ratioHeight} onChange={handleRatioHeightChange} />
+          <Button onClick={calculateWidthForAspectRatio}>16:9</Button>
+        </InputGroup>
+      </Section>
+      
+      <Section>
+        <SubTitle>Projector/Surface Resolution</SubTitle>
+        <InputGroup>
+          <Label>Pixel Width:</Label>
+          <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
+          <Input type="checkbox" checked={lockWidth} onChange={(e) => setLockWidth(e.target.checked)} />
+          <Label>Lock</Label>
+        </InputGroup>
+        <InputGroup>
+          <Label>Pixel Height:</Label>
+          <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
+          <Input type="checkbox" checked={lockHeight} onChange={(e) => setLockHeight(e.target.checked)} />
+          <Label>Lock</Label>
+        </InputGroup>
+        <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
+        <SubTitle>Pixel Pitch: {calculatePixelPitch()} mm</SubTitle>
+        <SmallText>Closest Optimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
+        <CanvasWrapper>
+          <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
+        </CanvasWrapper>
+        <Button onClick={generateTestPattern}>Download Test Pattern</Button>
+        <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
+          <SubTitle>Generate Test Pattern</SubTitle>
+        </a>
+      </Section>
+
+      <Section>
+        <SubTitle>Throw Ratio and Distance</SubTitle>
+        <InputGroup>
+          <Label>Throw Ratio:</Label>
+          <Input type="number" value={throwRatio} onChange={handleThrowRatioChange} step="0.01" />
+        </InputGroup>
+        <InputGroup>
+          <Label>Throw Distance (ft):</Label>
+          <Input type="number" value={throwDistance} onChange={handleThrowDistanceChange} step="0.01" />
+        </InputGroup>
+        <InputGroup>
+          <Label>Lumens:</Label>
+          <Input type="number" value={lumens} onChange={handleLumensChange} step="1" />
+          <Button onClick={setLumensForFootLamberts}>16fL</Button>
+          <Button onClick={setLumensForFootLamberts32}>32fL</Button>
+          <Button onClick={setLumensForFootLamberts48}>48fL</Button>
+        </InputGroup>
+        <SubTitle>
+          Foot Lamberts: <FootLambertsDisplay value={footLamberts}>{footLamberts} fL</FootLambertsDisplay>
+        </SubTitle>
+      </Section>
+      
       <CanvasWrapper>
         <canvas ref={visualizationCanvasRef} width={visualizationSize} height={visualizationSize}></canvas>
       </CanvasWrapper>
-      <br />
-      <br />
-      <br />
+      
       <small>Made by Joe Shea & ChatGPT</small>
     </Container>
   );
