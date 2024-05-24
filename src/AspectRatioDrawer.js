@@ -118,6 +118,47 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
     setAspectRatio(ratio);
   };
 
+  const handleTouchStart = (e) => {
+    setIsDrawing(true);
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    setStartX(touch.clientX - rect.left);
+    setStartY(touch.clientY - rect.top);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(startX, startY, x - startX, y - startY);
+  };
+
+  const handleTouchEnd = (e) => {
+    setIsDrawing(false);
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.changedTouches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    setEndX(x);
+    setEndY(y);
+
+    const width = Math.abs(x - startX);
+    const height = Math.abs(y - startY);
+    const ratio = (width / height).toFixed(2);
+    setAspectRatio(ratio);
+  };
+
   const updateWidth = () => {
     const newHeight = parseDimension(ratioHeight);
     const newWidth = (newHeight * aspectRatio).toFixed(2);
@@ -176,13 +217,16 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         />
       </div>
       {aspectRatio && (
         <div>
           <h2>Estimated Aspect Ratio: {aspectRatio}:1</h2>
           <div>
-            <button onClick={updateWidth}> Surface W = {aspectRatio} * H</button>
+            <button onClick={updateWidth}>Surface W = {aspectRatio} * H</button>
             <button onClick={updateHeight}>Surface H = {aspectRatio} / W</button>
           </div>
         </div>
