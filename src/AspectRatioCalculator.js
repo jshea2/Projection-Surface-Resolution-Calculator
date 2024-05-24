@@ -248,19 +248,29 @@ const displayRatio = () => {
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
-        const divisor = gcd(width, height);
-        const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+        // Check for standard aspect ratios
+        const standardRatios = {
+            '16:9': 16 / 9,
+            '16:10': 16 / 10,
+            '4:3': 4 / 3,
+            '2:1': 2 / 1,
+            '1:1': 1 / 1
+        };
         const decimalRatio = (width / height).toFixed(2);
-        
-        // Handle special case for 16:10 aspect ratio
-        if (wholeNumberRatio === "8:5") {
-            return "16:10 (1.60:1)";
+        for (const [key, value] of Object.entries(standardRatios)) {
+            if (Math.abs(value - width / height) < 0.01) {
+                return `${key} (${decimalRatio}:1)`;
+            }
         }
 
+        // If it's not a standard ratio, use gcd to calculate the ratio
+        const divisor = gcd(width, height);
+        const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
         return `${wholeNumberRatio} (${decimalRatio}:1)`;
     }
     return 'Invalid dimensions';
 };
+
 
 
   const calculatePixelPitch = () => {
