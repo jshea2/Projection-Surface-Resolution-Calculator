@@ -43,6 +43,15 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
   useEffect(() => {
     const canvas = canvasRef.current;
     ctxRef.current = canvas.getContext('2d');
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
+    };
   }, []);
 
   const handleImageUpload = (event) => {
@@ -72,7 +81,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
         canvas.height = height;
 
         // Draw the scaled image on the canvas
-        ctx.drawImage(img, 0, 0, width*0.7, height*0.7);
+        ctx.drawImage(img, 0, 0, width, height);
         setImage(img);
       };
       img.src = e.target.result;
