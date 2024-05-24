@@ -196,6 +196,9 @@ const AspectRatioCalculator = () => {
     const height = parseDimension(ratioHeight);
     if (width && height) {
       const divisor = gcd(width, height);
+      console.log(divisor)
+      console.log(width)
+      console.log(height)
       return `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
     }
     return 'Invalid dimensions';
@@ -210,6 +213,28 @@ const AspectRatioCalculator = () => {
     const pixelPitch = calculatePixelPitch(); // in mm
     const pixelPitchMeters = pixelPitch; // Convert mm to meters
     return (pixelPitchMeters * 3.28084).toFixed(2); // Convert meters to feet
+  };
+
+  const calculateHeightForAspectRatio = () => {
+    const width = parseDimension(ratioWidth);
+    if (width) {
+      const height = (width * 9) / 16;
+      const heightInFeet = `${(height / 12).toFixed(2)}ft`;
+      setRatioHeight(heightInFeet);
+      setPixelWidth(1920)
+      setPixelHeight(1080)
+    }
+  };
+
+    const calculateWidthForAspectRatio = () => {
+    const height = parseDimension(ratioHeight);
+    if (height) {
+      const width = (height * 16) / 9;
+      const widthInFeet = `${(width / 12).toFixed(2)}ft`;
+      setRatioWidth(widthInFeet);
+      setPixelHeight(1080)
+      setPixelWidth(1920)
+    }
   };
 
   const canvasRef = useRef(null);
@@ -263,49 +288,44 @@ const AspectRatioCalculator = () => {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-   // Convert surface dimension width to feet
-const screenWidthFeet = parseDimensionInFeet(ratioWidth);
+    // Convert surface dimension width to feet
+    const screenWidthFeet = parseDimensionInFeet(ratioWidth);
 
     // Draw the screen
     const distance = parseFloat(throwDistance) * 10; // Adjust the scaling factor if needed
-const screenHeight = 50; // fixed height for visualization
-const screenWidth = screenWidthFeet * 10; // scale the width appropriately
-const screenY = canvas.height / 1.2 + screenHeight; // Adjust the screen position
-ctx.fillStyle = 'blue';
+    const screenHeight = 50; // fixed height for visualization
+    const screenWidth = screenWidthFeet * 10; // scale the width appropriately
+    const screenY = canvas.height / 1.2 + screenHeight; // Adjust the screen position
+    ctx.fillStyle = 'blue';
     ctx.fillRect((canvas.width - screenWidth) / 2, screenY, screenWidth, 3);
-    ctx.fillRect((canvas.width / 2) -10, (screenY - distance)-30, 20, 30);
+    ctx.fillRect((canvas.width / 2) - 10, (screenY - distance) - 30, 20, 30);
 
-// Draw the throw distance line
-
-ctx.strokeStyle = 'red';
+    // Draw the throw distance line
+    ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 3]);
-ctx.beginPath();
-ctx.moveTo(canvas.width / 2, screenY); // Start from the top of the screen
-ctx.lineTo(canvas.width / 2, screenY - distance); // Adjust the throw distance
-ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, screenY); // Start from the top of the screen
+    ctx.lineTo(canvas.width / 2, screenY - distance); // Adjust the throw distance
+    ctx.stroke();
 
     // Draw the cone lines
     ctx.setLineDash([]);
-ctx.beginPath();
-ctx.moveTo(canvas.width / 2, screenY - distance); // Source point at the top of the throw distance line
-ctx.lineTo((canvas.width - screenWidth) / 2, screenY); // Left edge of the screen
-ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, screenY - distance); // Source point at the top of the throw distance line
+    ctx.lineTo((canvas.width - screenWidth) / 2, screenY); // Left edge of the screen
+    ctx.stroke();
 
-ctx.beginPath();
-ctx.moveTo(canvas.width / 2, screenY - distance); // Source point at the top of the throw distance line
-ctx.lineTo((canvas.width + screenWidth) / 2, screenY); // Right edge of the screen
-ctx.stroke();
-
-
-
-
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, screenY - distance); // Source point at the top of the throw distance line
+    ctx.lineTo((canvas.width + screenWidth) / 2, screenY); // Right edge of the screen
+    ctx.stroke();
 
     // Draw the throw ratio label
-    drawText(ctx, `Throw Ratio: ${throwRatio}`, canvas.width / 2, (screenY - distance) +20);
+    drawText(ctx, `Throw Ratio: ${throwRatio}`, canvas.width / 2, (screenY - distance) + 20);
 
     // Draw the throw distance label
-    drawText(ctx, `Throw Distance: ${throwDistance} ft`, canvas.width / 2, (screenY - (distance / 2))+40);
+    drawText(ctx, `Throw Distance: ${throwDistance} ft`, canvas.width / 2, (screenY - (distance / 2)) + 40);
 
     // Draw the screen width label
     drawText(ctx, `Surface Width: ${ratioWidth}`, canvas.width / 2, screenY + 20);
@@ -360,11 +380,13 @@ ctx.stroke();
       <Label>
         Width:
         <Input type="text" value={ratioWidth} onChange={handleRatioWidthChange} />
+        <Button onClick={calculateHeightForAspectRatio}>16:9</Button>
       </Label>
       <br />
       <Label>
         Height:
         <Input type="text" value={ratioHeight} onChange={handleRatioHeightChange} />
+        <Button onClick={calculateWidthForAspectRatio}>16:9</Button>
       </Label>
       <SubTitle>Projector/Surface Resolution</SubTitle>
       <Label>
@@ -414,7 +436,7 @@ ctx.stroke();
       <a href="https://vioso.com/testpattern-generator/" target="_blank" rel="noopener noreferrer">
         <SubTitle>Generate Test Pattern</SubTitle>
       </a>
-            <CanvasWrapper>
+      <CanvasWrapper>
         <canvas ref={visualizationCanvasRef} width={visualizationSize} height={visualizationSize}></canvas>
       </CanvasWrapper>
       <br />
