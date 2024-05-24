@@ -261,37 +261,50 @@ const AspectRatioCalculator = () => {
     return inches / 12; // Convert inches to feet
   };
 
-  const displayRatio = () => {
-    const width = parseDimension(ratioWidth);
-    const height = parseDimension(ratioHeight);
-    if (width && height) {
-      // Check for standard aspect ratios
-      const standardRatios = {
-        '16:9': 16 / 9,
-        '16:10': 16 / 10,
-        '4:3': 4 / 3,
-        '2:1': 2 / 1,
-        '1:1': 1 / 1
-      };
-      const decimalRatio = (width / height).toFixed(2);
-      for (const [key, value] of Object.entries(standardRatios)) {
-        if (Math.abs(value - width / height) < 0.01) {
-          return `${key} (${decimalRatio}:1)`;
-        }
+const displayRatio = () => {
+  const width = parseDimension(ratioWidth);
+  const height = parseDimension(ratioHeight);
+  if (width && height) {
+    // Check for standard aspect ratios
+    const standardRatios = {
+      '16:9': 16 / 9,
+      '16:10': 16 / 10,
+      '4:3': 4 / 3,
+      '2:1': 2 / 1,
+      '1:1': 1 / 1
+    };
+    const decimalRatio = (width / height).toFixed(2);
+    for (const [key, value] of Object.entries(standardRatios)) {
+      if (Math.abs(value - width / height) < 0.01) {
+        return `${key} (${decimalRatio}:1)`;
       }
+    }
 
-      // If it's not a standard ratio, use gcd to calculate the ratio
-      const divisor = gcd(width, height);
-      const wholeNumberRatio = `${Math.round(width / divisor)}:${Math.round(height / divisor)}`;
+    // If it's not a standard ratio, use gcd to calculate the ratio
+    const divisor = gcd(width, height);
+    const wholeNumberRatioWidth = Math.round(width / divisor);
+    const wholeNumberRatioHeight = Math.round(height / divisor);
+
+    // Check if either value in the first aspect ratio exceeds 300
+    if (wholeNumberRatioWidth > 300 || wholeNumberRatioHeight > 300) {
+      return `(${decimalRatio}:1)`;
+    } else {
+      const wholeNumberRatio = `${wholeNumberRatioWidth}:${wholeNumberRatioHeight}`;
       return `${wholeNumberRatio} (${decimalRatio}:1)`;
     }
-    return 'Invalid dimensions';
-  };
+  }
+  return 'Invalid dimensions';
+};
+
 
   const calculatePixelPitch = () => {
-    const width = parseDimension(ratioWidth) / 0.0393701; // Convert inches to mm
-    return (width / pixelWidth).toFixed(2);
+    const widthInMM = parseDimension(ratioWidth) / 0.0393701; // Convert inches to mm
+    const pixelPitch = (widthInMM / pixelWidth).toFixed(2);
+    const ppi = (25.4 / pixelPitch).toFixed(2); // Convert mm to inches and calculate PPI
+    return { pixelPitch, ppi };
   };
+
+  const { pixelPitch, ppi } = calculatePixelPitch();
 
   const calculateViewingDistance = () => {
     const pixelPitch = calculatePixelPitch(); // in mm
@@ -571,7 +584,7 @@ const generateTestPattern = () => {
           <Label>Lock</Label>
         </InputGroup>
         <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
-        <SubTitle>Pixel Pitch: {calculatePixelPitch()} mm</SubTitle>
+        <SubTitle>Pixel Pitch: {pixelPitch} mm ({ppi} PPI)</SubTitle>
         <SmallText>Closest Optimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
         <CanvasWrapper>
           <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
@@ -582,17 +595,16 @@ const generateTestPattern = () => {
         </InputGroup>
       </Section>
 
-            <Section>
+      <Section>
         <AspectRatioDrawer 
           ratioWidth={ratioWidth} 
           ratioHeight={ratioHeight} 
           setRatioWidth={setRatioWidth} 
           setRatioHeight={setRatioHeight}
           pixelWidth={pixelWidth}
-        pixelHeight={pixelHeight}
-        setPixelWidth={setPixelWidth}
-        setPixelHeight={setPixelHeight}
-
+          pixelHeight={pixelHeight}
+          setPixelWidth={setPixelWidth}
+          setPixelHeight={setPixelHeight}
         />
       </Section>
 
@@ -621,8 +633,6 @@ const generateTestPattern = () => {
       <CanvasWrapper>
         <canvas ref={visualizationCanvasRef} width={visualizationSize} height={visualizationSize}></canvas>
       </CanvasWrapper>
-
-
 
       <small>Made by Joe Shea & ChatGPT</small>
     </Container>
