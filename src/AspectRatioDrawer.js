@@ -72,7 +72,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
         canvas.height = height;
 
         // Draw the scaled image on the canvas
-        ctx.drawImage(img, 0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width*0.7, height*0.7);
         setImage(img);
       };
       img.src = e.target.result;
@@ -195,7 +195,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
         case "ft-in":
           return mainValue * 12 + inches;
         case "ft":
-          return mainValue * 12;
+          return mainValue;
         case "mm":
           return mainValue * 0.0393701; // Convert millimeters to inches
         case "in":
