@@ -27,12 +27,28 @@ const Label = styled.label`
   font-size: 1rem;
   display: block;
   margin-bottom: 0.5rem;
+  
 `;
 
 const Input = styled.input`
-  font-size: 1rem;
+  font-size: 1.2rem;
   padding: 0.4rem;
   margin-bottom: 0.1rem;
+  width: 80px; /* Adjust this value as needed */
+`;
+const Inputcheck = styled.input`
+  font-size: 1.2rem;
+  padding: 0.4rem;
+  margin-bottom: 0.1rem;
+`;
+
+const Input2 = styled.input`
+  font-size: 1.2rem;
+  padding: 0.4rem;
+  margin-bottom: 0.1rem;
+
+  width: 200px; /* Adjust this value as needed */
+
 `;
 
 const Button = styled.button`
@@ -545,13 +561,13 @@ const generateTestPattern = () => {
         <InputGroup>
           <Label>Pixel Width:</Label>
           <Input type="number" value={pixelWidth} onChange={handlePixelWidthChange} />
-          <Input type="checkbox" checked={lockWidth} onChange={(e) => setLockWidth(e.target.checked)} />
+          <Inputcheck type="checkbox" checked={lockWidth} onChange={(e) => setLockWidth(e.target.checked)} />
           <Label>Lock</Label>
         </InputGroup>
         <InputGroup>
           <Label>Pixel Height:</Label>
           <Input type="number" value={pixelHeight} onChange={handlePixelHeightChange} />
-          <Input type="checkbox" checked={lockHeight} onChange={(e) => setLockHeight(e.target.checked)} />
+          <Inputcheck type="checkbox" checked={lockHeight} onChange={(e) => setLockHeight(e.target.checked)} />
           <Label>Lock</Label>
         </InputGroup>
         <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
@@ -561,7 +577,7 @@ const generateTestPattern = () => {
           <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
         </CanvasWrapper>
         <InputGroup>
-          <Input type="text" value={testPatternName} onChange={(e) => setTestPatternName(e.target.value)} placeholder="Test Pattern Name" />
+          <Input2 type="text" value={testPatternName} onChange={(e) => setTestPatternName(e.target.value)} placeholder="Test Pattern Name" />
           <Button onClick={generateTestPattern}>Download</Button>
         </InputGroup>
       </Section>
