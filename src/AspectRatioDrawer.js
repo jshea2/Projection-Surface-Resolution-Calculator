@@ -37,8 +37,8 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
 
-  const desiredWidth = 800; // Desired width for the scaled image
-  const desiredHeight = 600; // Desired height for the scaled image
+  const desiredWidth = 800 * 2 / 3; // Desired width for the scaled image
+  const desiredHeight = 600 * 2 / 3; // Desired height for the scaled image
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -222,7 +222,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
       <div>
         <Input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
-      <small>11Upload file, click and drag box over image</small>
+      <small>2Upload file, click and drag box over image</small>
       <div>
         <Canvas
           ref={canvasRef}
