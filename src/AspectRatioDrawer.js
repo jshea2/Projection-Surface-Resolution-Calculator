@@ -119,6 +119,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
   };
 
   const handleTouchStart = (e) => {
+    e.preventDefault();
     setIsDrawing(true);
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -128,6 +129,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
   };
 
   const handleTouchMove = (e) => {
+    e.preventDefault();
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
@@ -144,6 +146,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
   };
 
   const handleTouchEnd = (e) => {
+    e.preventDefault();
     setIsDrawing(false);
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -192,7 +195,7 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
         case "ft-in":
           return mainValue * 12 + inches;
         case "ft":
-          return mainValue;
+          return mainValue * 12;
         case "mm":
           return mainValue * 0.0393701; // Convert millimeters to inches
         case "in":
