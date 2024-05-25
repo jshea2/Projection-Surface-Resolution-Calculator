@@ -88,7 +88,8 @@ const Section = styled.div`
 const FootLambertsDisplay = styled.div`
   font-size: 1.5rem;
   color: ${({ value }) => {
-    if (value < 15) return 'red';
+  if (value == 0) return 'black'; 
+  if (value < 15) return 'red';
     if (value >= 16 && value <= 50) return 'green';
     if (value >= 51 && value <= 1000) return 'yellow';
     return 'black';
@@ -104,6 +105,7 @@ const AspectRatioCalculator = () => {
   const [throwDistance, setThrowDistance] = useState(24); // Example initial value
   const [lumens, setLumens] = useState(0);
   const [footLamberts, setFootLamberts] = useState(0);
+  const [screenGain, setScreenGain] = useState(1.0); // New state for screen gain
   const [lockWidth, setLockWidth] = useState(false);
   const [lockHeight, setLockHeight] = useState(true);
   const [testPatternName, setTestPatternName] = useState('Test Pattern Name');
@@ -146,7 +148,7 @@ const AspectRatioCalculator = () => {
         setPixelHeight(Math.round((pixelWidth * height) / width));
       }
       updateThrowDistance(width);
-      updateFootLamberts(lumens, width, height);
+      updateFootLamberts(lumens, width, height, screenGain);
     }
   };
 
@@ -162,7 +164,7 @@ const AspectRatioCalculator = () => {
         setPixelHeight(Math.round((pixelWidth * height) / width));
       }
       updateThrowDistance(width);
-      updateFootLamberts(lumens, width, height);
+      updateFootLamberts(lumens, width, height, screenGain);
     }
   };
 
@@ -192,7 +194,17 @@ const AspectRatioCalculator = () => {
     const width = parseDimension(ratioWidth);
     const height = parseDimension(ratioHeight);
     if (width && height) {
-      updateFootLamberts(newLumens, width, height);
+      updateFootLamberts(newLumens, width, height, screenGain);
+    }
+  };
+
+  const handleScreenGainChange = (e) => {
+    const newScreenGain = e.target.value;
+    setScreenGain(newScreenGain);
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      updateFootLamberts(lumens, width, height, newScreenGain);
     }
   };
 
@@ -205,7 +217,7 @@ const AspectRatioCalculator = () => {
       const surfaceArea = widthInFeet * heightInFeet;
       const lumensForFL = (desiredFL * surfaceArea).toFixed(2);
       setLumens(lumensForFL);
-      updateFootLamberts(lumensForFL, width, height);
+      updateFootLamberts(lumensForFL, width, height, screenGain);
     }
   };
 
@@ -217,11 +229,11 @@ const AspectRatioCalculator = () => {
     }
   };
 
-  const updateFootLamberts = (lumens, width, height) => {
+  const updateFootLamberts = (lumens, width, height, screenGain) => {
     const widthInFeet = width / 12;
     const heightInFeet = height / 12;
     const surfaceArea = widthInFeet * heightInFeet;
-    const newFootLamberts = (lumens / surfaceArea).toFixed(2);
+    const newFootLamberts = ((lumens * screenGain) / surfaceArea).toFixed(2);
     setFootLamberts(newFootLamberts);
   };
 
@@ -261,41 +273,40 @@ const AspectRatioCalculator = () => {
     return inches / 12; // Convert inches to feet
   };
 
-const displayRatio = () => {
-  const width = parseDimension(ratioWidth);
-  const height = parseDimension(ratioHeight);
-  if (width && height) {
-    // Check for standard aspect ratios
-    const standardRatios = {
-      '16:9': 16 / 9,
-      '16:10': 16 / 10,
-      '4:3': 4 / 3,
-      '2:1': 2 / 1,
-      '1:1': 1 / 1
-    };
-    const decimalRatio = (width / height).toFixed(2);
-    for (const [key, value] of Object.entries(standardRatios)) {
-      if (Math.abs(value - width / height) < 0.01) {
-        return `${key} (${decimalRatio}:1)`;
+  const displayRatio = () => {
+    const width = parseDimension(ratioWidth);
+    const height = parseDimension(ratioHeight);
+    if (width && height) {
+      // Check for standard aspect ratios
+      const standardRatios = {
+        '16:9': 16 / 9,
+        '16:10': 16 / 10,
+        '4:3': 4 / 3,
+        '2:1': 2 / 1,
+        '1:1': 1 / 1
+      };
+      const decimalRatio = (width / height).toFixed(2);
+      for (const [key, value] of Object.entries(standardRatios)) {
+        if (Math.abs(value - width / height) < 0.01) {
+          return `${key} (${decimalRatio}:1)`;
+        }
+      }
+
+      // If it's not a standard ratio, use gcd to calculate the ratio
+      const divisor = gcd(width, height);
+      const wholeNumberRatioWidth = Math.round(width / divisor);
+      const wholeNumberRatioHeight = Math.round(height / divisor);
+
+      // Check if either value in the first aspect ratio exceeds 300
+      if (wholeNumberRatioWidth > 300 || wholeNumberRatioHeight > 300) {
+        return `(${decimalRatio}:1)`;
+      } else {
+        const wholeNumberRatio = `${wholeNumberRatioWidth}:${wholeNumberRatioHeight}`;
+        return `${wholeNumberRatio} (${decimalRatio}:1)`;
       }
     }
-
-    // If it's not a standard ratio, use gcd to calculate the ratio
-    const divisor = gcd(width, height);
-    const wholeNumberRatioWidth = Math.round(width / divisor);
-    const wholeNumberRatioHeight = Math.round(height / divisor);
-
-    // Check if either value in the first aspect ratio exceeds 300
-    if (wholeNumberRatioWidth > 300 || wholeNumberRatioHeight > 300) {
-      return `(${decimalRatio}:1)`;
-    } else {
-      const wholeNumberRatio = `${wholeNumberRatioWidth}:${wholeNumberRatioHeight}`;
-      return `${wholeNumberRatio} (${decimalRatio}:1)`;
-    }
-  }
-  return 'Invalid dimensions';
-};
-
+    return 'Invalid dimensions';
+  };
 
   const calculatePixelPitch = () => {
     const widthInMM = parseDimension(ratioWidth) / 0.0393701; // Convert inches to mm
@@ -308,8 +319,8 @@ const displayRatio = () => {
 
   const calculateViewingDistance = () => {
     const pixelPitch = calculatePixelPitch(); // in mm
-    const pixelPitchMeters = pixelPitch; // Convert mm to meters
-    return (pixelPitchMeters * 3.28084).toFixed(2); // Convert meters to feet
+    const pixelPitchMeters = (pixelPitch.pixelPitch * 3.28084).toFixed(2); // Convert meters to feet
+    return (pixelPitchMeters); 
   };
 
   const calculateHeightForAspectRatio = (aspectRatio) => {
@@ -321,7 +332,7 @@ const displayRatio = () => {
       setRatioHeight(heightInFeet);
       setPixelWidth(1920);
       setPixelHeight(Math.round((1920 * h) / w));
-      updateFootLamberts(lumens, width, height);
+      updateFootLamberts(lumens, width, height, screenGain);
     }
   };
 
@@ -334,7 +345,7 @@ const displayRatio = () => {
       setRatioWidth(widthInFeet);
       setPixelHeight(1080);
       setPixelWidth(Math.round((1080 * w) / h));
-      updateFootLamberts(lumens, width, height);
+      updateFootLamberts(lumens, width, height, screenGain);
     }
   };
 
@@ -344,7 +355,7 @@ const displayRatio = () => {
   useEffect(() => {
     drawPreview();
     drawVisualization();
-  }, [pixelWidth, pixelHeight, throwRatio, throwDistance, ratioWidth, ratioHeight, lumens]);
+  }, [pixelWidth, pixelHeight, throwRatio, throwDistance, ratioWidth, ratioHeight, lumens, screenGain]);
 
   const drawText = (ctx, text, x, y) => {
     ctx.fillStyle = 'black';
@@ -586,6 +597,20 @@ const generateTestPattern = () => {
         <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
         <SubTitle>Pixel Pitch: {pixelPitch} mm ({ppi} PPI)</SubTitle>
         <SmallText>Closest Optimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
+        <InputGroup>
+          <Label>Lumens:</Label>
+          <Input type="number" value={lumens} onChange={handleLumensChange} step="1" />
+          <Button onClick={() => setLumensForFootLamberts(16)}>16fL</Button>
+          <Button onClick={() => setLumensForFootLamberts(32)}>32fL</Button>
+          <Button onClick={() => setLumensForFootLamberts(48)}>48fL</Button>
+        </InputGroup>
+        <InputGroup>
+          <Label>Screen Gain:</Label>
+          <Input type="number" value={screenGain} onChange={handleScreenGainChange} step="0.1" />
+        </InputGroup>
+        <SubTitle>
+          Foot Lamberts: <FootLambertsDisplay value={footLamberts}>{footLamberts} fL</FootLambertsDisplay>
+        </SubTitle>
         <CanvasWrapper>
           <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
         </CanvasWrapper>
@@ -618,16 +643,6 @@ const generateTestPattern = () => {
           <Label>Throw Distance (ft):</Label>
           <Input type="number" value={throwDistance} onChange={handleThrowDistanceChange} step="0.01" />
         </InputGroup>
-        <InputGroup>
-          <Label>Lumens:</Label>
-          <Input type="number" value={lumens} onChange={handleLumensChange} step="1" />
-          <Button onClick={() => setLumensForFootLamberts(16)}>16fL</Button>
-          <Button onClick={() => setLumensForFootLamberts(32)}>32fL</Button>
-          <Button onClick={() => setLumensForFootLamberts(48)}>48fL</Button>
-        </InputGroup>
-        <SubTitle>
-          Foot Lamberts: <FootLambertsDisplay value={footLamberts}>{footLamberts} fL</FootLambertsDisplay>
-        </SubTitle>
       </Section>
       
       <CanvasWrapper>
