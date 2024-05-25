@@ -86,7 +86,7 @@ const Section = styled.div`
 `;
 
 const FootLambertsDisplay = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: ${({ value }) => {
   if (value == 0) return 'black'; 
   if (value < 15) return 'red';
@@ -215,7 +215,7 @@ const AspectRatioCalculator = () => {
       const widthInFeet = width / 12;
       const heightInFeet = height / 12;
       const surfaceArea = widthInFeet * heightInFeet;
-      const lumensForFL = (desiredFL * surfaceArea).toFixed(2);
+      const lumensForFL = (desiredFL * surfaceArea).toFixed(0);
       setLumens(lumensForFL);
       updateFootLamberts(lumensForFL, width, height, screenGain);
     }
@@ -594,9 +594,11 @@ const generateTestPattern = () => {
           <Inputcheck type="checkbox" checked={lockHeight} onChange={(e) => setLockHeight(e.target.checked)} />
           <Label>Lock</Label>
         </InputGroup>
-        <SubTitle>Aspect Ratio: {displayRatio()}</SubTitle>
-        <SubTitle>Pixel Pitch: {pixelPitch} mm ({ppi} PPI)</SubTitle>
-        <SmallText>Closest Optimal Viewing Distance: {calculateViewingDistance()} ft</SmallText>
+        
+        <h3>Aspect Ratio: {displayRatio()}</h3>
+        <h3>Pixel Pitch: {pixelPitch} mm ({ppi} PPI)</h3>
+        <h3>Optimal Viewing Distance: {calculateViewingDistance()} ft</h3>
+
         <InputGroup>
           <Label>Lumens:</Label>
           <Input type="number" value={lumens} onChange={handleLumensChange} step="1" />
@@ -608,9 +610,9 @@ const generateTestPattern = () => {
           <Label>Screen Gain:</Label>
           <Input type="number" value={screenGain} onChange={handleScreenGainChange} step="0.1" />
         </InputGroup>
-        <SubTitle>
+        <h3>
           Foot Lamberts: <FootLambertsDisplay value={footLamberts}>{footLamberts} fL</FootLambertsDisplay>
-        </SubTitle>
+        </h3>
         <CanvasWrapper>
           <canvas ref={canvasRef} width={previewSize} height={previewSize}></canvas>
         </CanvasWrapper>
