@@ -218,11 +218,11 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
 
   return (
     <Container>
-      <Title>Estimate Aspect Ratio from Img</Title>
+      <Title>Estimate Aspect Ratio from Image</Title>
       <div>
         <Input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
-      <small>Upload file, click and drag box over image</small>
+          <small>Upload file, click and drag box over image.For the most accurate representation of orthogonal sizes, use the 3X telephoto lens on an mobile device.</small>
       <div>
         <Canvas
           ref={canvasRef}
