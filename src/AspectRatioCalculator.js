@@ -188,6 +188,10 @@ const AspectRatioCalculator = () => {
     }
   };
 
+  const generateLink = () => {
+    return `https://www.projectorcentral.com/projectors.cfm?g=2&exp4=1&td=${throwDistance}&tr=${throwRatio}&tr2=${throwRatio}#list`;
+};
+
   const handleLumensChange = (e) => {
     const newLumens = e.target.value;
     setLumens(newLumens);
@@ -645,6 +649,9 @@ const generateTestPattern = () => {
           <Label>Throw Distance (ft):</Label>
           <Input type="number" value={throwDistance} onChange={handleThrowDistanceChange} step="0.01" />
         </InputGroup>
+          <Button as="a" href={generateLink()} target="_blank">
+    Search for Projectors with specs
+  </Button>
       </Section>
       
       <CanvasWrapper>
