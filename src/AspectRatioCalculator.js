@@ -651,7 +651,10 @@ const generateTestPattern = () => {
         <canvas ref={visualizationCanvasRef} width={visualizationSize} height={visualizationSize}></canvas>
       </CanvasWrapper>
 
-      <small>Made by Joe Shea & ChatGPT</small>
+      <small>Made by Joe Shea & ChatGPT. </small>
+      <a href="https://github.com/jshea2/Projection-Surface-Resolution-Calculator" target="_blank">Github Project</a>
+
+      
     </Container>
   );
 };
