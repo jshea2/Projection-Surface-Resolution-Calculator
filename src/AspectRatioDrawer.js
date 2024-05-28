@@ -238,8 +238,8 @@ const AspectRatioDrawer = ({ ratioWidth, ratioHeight, setRatioWidth, setRatioHei
         <div>
           <h2>Estimated Aspect Ratio: {aspectRatio}:1</h2>
           <div>
-            <button onClick={updateWidth}>Surface W = {aspectRatio} * H</button>
-            <button onClick={updateHeight}>Surface H = {aspectRatio} / W</button>
+                      <button onClick={updateWidth}>Pixel W = {aspectRatio} * {pixelHeight}</button>
+                      <button onClick={updateHeight}>Pixel H = {aspectRatio} / {pixelWidth}</button>
           </div>
         </div>
       )}
